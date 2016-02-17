@@ -3,10 +3,9 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>法布雷大叔的文件服务器</title>
+    <title>Sailer</title>
 
     <script src="scripts/jquery-2.2.0.min.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
@@ -41,9 +40,8 @@
         <div class="jumbotron">
             <p>
                 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                <span>此页内容来自服务器传递的动画信息</span>
+                <span id="textready">连接文件服务器……</span>
             </p>
-            <p><small><s>萌不到站长的动画是不会出现在列表里的</s></small></p>
         </div>
         <table id="content" class="table table-striped">
             <thead>
@@ -73,6 +71,7 @@
             url: "http://mysticmonkey.co.nf/Anime.xml",
             type: "GET",
             success: function (response) {
+                $("#textready").text("已连接文件服务器");
                 $(response).find("AnimeInfo").each(function (index, anime) {
                     var array = [];
 
@@ -101,5 +100,9 @@
             window.open("https://share.dmhy.org/topics/list?keyword=" + keyword);
         }
     </script>
+
+    <!-- Cordova 引用，它在生成应用程序时添加到其中。 -->
+    <script src="cordova.js"></script>
+    <script src="scripts/platformOverrides.js"></script>
 </body>
 </html>
