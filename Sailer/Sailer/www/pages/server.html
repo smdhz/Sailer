@@ -3,7 +3,6 @@
         <tr>
             <th>服务器</th>
             <th>位置</th>
-            <th>状态</th>
             <th>地址</th>
         </tr>
     </thead>
@@ -19,7 +18,6 @@
         columns: [
             { data: 'name' },
             { data: 'location' },
-            { data: 'status' },
             { data: 'address' }
         ],
         "bFilter": false,
@@ -37,8 +35,8 @@
 
             obj.name = server.label;
             obj.location = server.location;
-            obj.status = server.power_status;
             obj.address = server.main_ip;
+            obj.status = server.power_status == "running";
             obj.current = server.current_bandwidth_gb;
             obj.max = server.allowed_bandwidth_gb;
 
@@ -51,14 +49,13 @@
         type: "GET",
         success: function (data) {
             var obj = new Object();
-            var server = data;
-
-            obj.name = server.hostname;
-            obj.location = server.node_location;
-            obj.status = server.power_status;
-            obj.address = server.ip_addresses[0];
-            obj.current = server.data_counter;
-            obj.max = server.data_counter + server.data_next_reset;
+            
+            obj.name = data.hostname;
+            obj.location = data.node_location;
+            obj.address = data.ip_addresses[0];
+            obj.status = !data.suspended;
+            obj.current = data.data_counter;
+            obj.max = data.data_counter + data.data_next_reset;
 
             table.fnAddData(obj);
         }
@@ -68,9 +65,6 @@
         var data = $("#content").DataTable().rows(this).data()[0];
         var value = data.current / data.max * 100;
         var bar = $("[role=progressbar]:first");
-
-        alert(JSON.stringify(data));
-        alert(value);
 
         bar.attr("aria-valuenow", value);
         bar.css("width", value + "%");
