@@ -1,0 +1,83 @@
+﻿<table id="content" class="table table-striped">
+    <thead>
+        <tr>
+            <th>服务器</th>
+            <th>位置</th>
+            <th>状态</th>
+            <th>地址</th>
+        </tr>
+    </thead>
+</table>
+<p>流量</p>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 4em;width: 0;">
+    </div>
+</div>
+
+<script>
+    var table = $("#content").dataTable({
+        columns: [
+            { data: 'name' },
+            { data: 'location' },
+            { data: 'status' },
+            { data: 'address' }
+        ],
+        "bFilter": false,
+        "bInfo": false,
+        "bPaginate": false
+    });
+
+    $.ajax({
+        url: "https://api.vultr.com/v1/server/list",
+        type: "GET",
+        headers: { "API-Key": "ZH72FDIMJTPKAYNKZAKMCJYZQLN2QP" },
+        success: function (data) {
+            var obj = new Object();
+            var server = data["3724258"];
+
+            obj.name = server.label;
+            obj.location = server.location;
+            obj.status = server.power_status;
+            obj.address = server.main_ip;
+            obj.current = server.current_bandwidth_gb;
+            obj.max = server.allowed_bandwidth_gb;
+
+            table.fnAddData(obj);
+        }
+    });
+
+    $.ajax({
+        url: "https://api.64clouds.com/v1/getServiceInfo?veid=282960&api_key=private_r5OTIS2cQ0iTNAisls180NuD",
+        type: "GET",
+        success: function (data) {
+            var obj = new Object();
+            var server = data;
+
+            obj.name = server.hostname;
+            obj.location = server.node_location;
+            obj.status = server.power_status;
+            obj.address = server.ip_addresses[0];
+            obj.current = server.data_counter;
+            obj.max = server.data_counter + server.data_next_reset;
+
+            table.fnAddData(obj);
+        }
+    });
+
+    $("#content tbody").on("click", "tr", function () {
+        var data = $("#content").DataTable().rows(this).data()[0];
+        var value = data.current / data.max * 100;
+        var bar = $("[role=progressbar]:first");
+
+        alert(JSON.stringify(data));
+        alert(value);
+
+        bar.attr("aria-valuenow", value);
+        bar.css("width", value + "%");
+        bar.text(value + "%");
+        if (value > 80)
+            bar.addClass("progress-bar-danger");
+        else if (value > 50)
+            bar.addClass("progress-bar-warning");
+    });
+</script>
