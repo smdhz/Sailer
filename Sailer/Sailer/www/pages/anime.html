@@ -1,4 +1,5 @@
-﻿<table id="content" class="table table-striped">
+﻿<h1>个人动画列表</h1>
+<table id="content" class="table table-striped">
     <thead>
         <tr>
             <th>标题</th>
@@ -22,7 +23,7 @@
     var keyword = null;
 
     $.ajax({
-        url: "http://45.32.10.227/file/Anime.xml",
+        url: "http://45.62.123.117/file/Anime.xml",
         type: "GET",
         success: function (response) {
             $(response).find("AnimeSync").each(function (index, anime) {

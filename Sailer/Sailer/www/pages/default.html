@@ -2,3 +2,26 @@
     <h1>Sailer</h1>
     <p>莽夫式集成客户端</p>
 </div>
+<div class="panel panel-default">
+    <div class="panel-heading">运行状态</div>
+    <table id="content" class="table table-striped">
+        <thead>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+
+<script>
+    $.ajax({
+        url: "http://ip-api.com/json",
+        type: "GET",
+        success: function (data) {
+            var body = $("#content tbody:first");
+            body.append("<tr><td><b>当前IP</b></td><td>" + data.query + "</td></tr>");
+            body.append("<tr><td><b>国家</b></td><td>" + data.country + "</td></tr>");
+            body.append("<tr><td><b>区划</b></td><td>" + data.regionName + "</td></tr>");
+            body.append("<tr><td><b>城市</b></td><td>" + data.city + "</td></tr>");
+        }
+    });
+</script>

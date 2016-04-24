@@ -1,24 +1,43 @@
-﻿<table id="content" class="table table-striped">
+﻿<h1>天际服务集群</h1>
+<table id="content" class="table table-striped">
     <thead>
         <tr>
-            <th>服务器</th>
             <th>位置</th>
             <th>地址</th>
+            <th>状态</th>
         </tr>
     </thead>
 </table>
-<p>流量</p>
-<div class="progress">
-    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 4em;width: 0;">
+<div class="panel panel-default">
+    <div class="panel-heading">流量</div>
+    <div class="panel-body">
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 4em;width: 0;">
+            </div>
+        </div>
     </div>
+    <div class="panel-footer" id="meter" style="text-align:right"></div>
 </div>
 
 <script>
     var table = $("#content").dataTable({
         columns: [
-            { data: 'name' },
             { data: 'location' },
-            { data: 'address' }
+            { data: 'address' },
+            {
+                data: null,
+                render: function (data, type) {
+                    if (type == "display") {
+                        var span = $("<span></span>");
+                        
+                        span.text(data.status ? "在线" : "离线");
+                        span.addClass(data.status ? "text-success" : "text-danger");
+                        
+                        return $("<td></td>").append(span).html();
+                    }
+                    return null;
+                }
+            }
         ],
         "bFilter": false,
         "bInfo": false,
@@ -31,14 +50,13 @@
         headers: { "API-Key": "ZH72FDIMJTPKAYNKZAKMCJYZQLN2QP" },
         success: function (data) {
             var obj = new Object();
-            var server = data["3724258"];
+            var server = data["3742507"];
 
-            obj.name = server.label;
             obj.location = server.location;
             obj.address = server.main_ip;
             obj.status = server.power_status == "running";
-            obj.current = server.current_bandwidth_gb;
-            obj.max = server.allowed_bandwidth_gb;
+            obj.current = parseFloat(server.current_bandwidth_gb);
+            obj.max = parseFloat(server.allowed_bandwidth_gb);
 
             table.fnAddData(obj);
         }
@@ -49,13 +67,13 @@
         type: "GET",
         success: function (data) {
             var obj = new Object();
-            
-            obj.name = data.hostname;
-            obj.location = data.node_location;
-            obj.address = data.ip_addresses[0];
-            obj.status = !data.suspended;
-            obj.current = data.data_counter;
-            obj.max = data.data_counter + data.data_next_reset;
+            var server = JSON.parse(data);
+
+            obj.location = server.node_location;
+            obj.address = server.ip_addresses[0];
+            obj.status = !server.suspended;
+            obj.current = server.data_counter / 1073741824;
+            obj.max = plan_monthly_data;
 
             table.fnAddData(obj);
         }
@@ -66,12 +84,20 @@
         var value = data.current / data.max * 100;
         var bar = $("[role=progressbar]:first");
 
-        bar.attr("aria-valuenow", value);
-        bar.css("width", value + "%");
-        bar.text(value + "%");
+        // 选中
+        $("#content tbody .info").removeClass("info");
+        $(this).addClass("info");
+
+        // 进度条
+        bar.attr("aria-valuenow", value.toFixed(0));
+        bar.css("width", value.toFixed(0) + "%");
+        bar.text(value.toFixed(2) + "%");
+        bar.removeClass("progress-bar-danger progress-bar-warning");
         if (value > 80)
             bar.addClass("progress-bar-danger");
         else if (value > 50)
             bar.addClass("progress-bar-warning");
+
+        $("#meter").text(data.current.toFixed(2) + "GB / " + data.max.toFixed(2) + "GB");
     });
 </script>
